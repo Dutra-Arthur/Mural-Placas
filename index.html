@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mural de Placas de Formatura</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page-wrapper">
+    <header class="page-header">
+      <div>
+        <h1>Mural de Placas de Formatura</h1>
+        <p>Visualize as placas de turmas de formandos.</p>
+      </div>
+      <a href="login.html" class="admin-link">Área administrativa</a>
+    </header>
+
+    <section class="content-grid">
+      <article class="mural-panel">
+        <div class="page-actions">
+          <a href="login.html?redirect=home.html" class="secondary-link discreet-button">Adicionar nova placa</a>
+        </div>
+
+        <div class="mural-header">
+          <h2>Placas no mural</h2>
+          <span id="placasCount">0 placas</span>
+        </div>
+
+        <div id="mural" class="mural-grid"></div>
+      </article>
+    </section>
+  </main>
+
+  <script src="mural.js" defer></script>
+</body>
+</html>

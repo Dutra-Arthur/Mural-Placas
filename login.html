@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Mural de Placas de Formatura</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page-wrapper">
+    <section class="login-container">
+      <article class="login-panel">
+        <div class="login-header">
+          <h1>Mural de Placas de Formatura</h1>
+          <p>Login de Administrador</p>
+        </div>
+
+        <form id="loginForm" class="login-form">
+          <label class="input-group">
+            <span>E-mail de Administrador</span>
+            <input type="email" id="email" placeholder="Digite o e-mail" required autocomplete="username" autofocus />
+          </label>
+
+          <label class="input-group">
+            <span>Senha de Administrador</span>
+            <input type="password" id="senha" placeholder="Digite a senha" required autocomplete="current-password" />
+          </label>
+
+          <div class="form-actions">
+            <button type="submit" id="entrarBotao">Entrar</button>
+          </div>
+
+          <div id="errorMessage" class="error-message"></div>
+        </form>
+
+        <div class="login-footer">
+          <a href="register.html" class="secondary-link">Criar novo cadastro</a>
+          <a href="index.html" class="secondary-link">Visualizar mural sem login</a>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script type="module" src="login.js" defer></script>
+</body>
+</html>

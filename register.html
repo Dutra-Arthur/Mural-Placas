@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro - Mural de Placas de Formatura</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page-wrapper">
+    <section class="login-container">
+      <article class="login-panel">
+        <div class="login-header">
+          <h1>Criar Cadastro</h1>
+          <p>Cadastre um usuário administrador para gerenciar o mural.</p>
+        </div>
+
+        <form id="registerForm" class="login-form">
+          <label class="input-group">
+            <span>E-mail</span>
+            <input type="email" id="email" placeholder="Digite o e-mail" required autocomplete="username" autofocus />
+          </label>
+
+          <label class="input-group">
+            <span>Senha</span>
+            <input type="password" id="senha" placeholder="Digite a senha" required autocomplete="new-password" />
+          </label>
+
+          <label class="input-group">
+            <span>Confirme a senha</span>
+            <input type="password" id="senhaConfirmacao" placeholder="Repita a senha" required autocomplete="new-password" />
+          </label>
+
+          <label class="input-group">
+            <span>Chave de administrador</span>
+            <input type="password" id="adminKey" placeholder="Digite a chave secreta" required autocomplete="one-time-code" />
+          </label>
+
+          <div class="form-actions">
+            <button type="submit" id="cadastrarBotao">Cadastrar</button>
+          </div>
+
+          <div id="errorMessage" class="error-message"></div>
+        </form>
+
+        <div class="login-footer">
+          <a href="login.html" class="secondary-link">Já tem conta? Entrar</a>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script type="module" src="register.js"></script>
+</body>
+</html>

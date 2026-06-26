@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mural de Placas de Formatura</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page-wrapper">
+    <header class="page-header">
+      <div>
+        <h1>Mural de Placas de Formatura</h1>
+        <p>Adicione, visualize, edite e remova placas de turmas de formandos.</p>
+      </div>
+      <button class="logout-btn" onclick="fazerLogout()">Sair</button>
+    </header>
+
+    <section class="content-grid">
+      <article class="form-panel">
+        <div class="page-actions">
+          <a href="index.html" class="secondary-link">Ver mural de placas</a>
+        </div>
+
+        <h2>Nova Placa</h2>
+        <form id="placaForm" class="placa-form">
+          <input type="hidden" id="placaId" />
+
+          <label class="input-group">
+            <span>Imagem da placa</span>
+            <div class="image-input-row">
+              <input type="file" id="imagemArquivo" accept="image/*" />
+              <span class="or-text">ou</span>
+              <input type="url" id="imagemUrl" placeholder="Cole a URL da imagem" />
+            </div>
+          </label>
+
+          <div class="image-preview" id="imagePreview">
+            <span>Prévia da imagem</span>
+          </div>
+
+          <label class="input-group">
+            <span>Ano/Semestre</span>
+            <input type="text" id="anoSemestre" placeholder="Ex: 2026/1" required />
+          </label>
+
+          <label class="input-group">
+            <span>Reitor/a</span>
+            <input type="text" id="reitor" placeholder="Nome do Reitor/a" required />
+          </label>
+
+          <label class="input-group">
+            <span>Diretor/a do campus</span>
+            <input type="text" id="diretorCampus" placeholder="Nome do Diretor/a do campus" required />
+          </label>
+
+          <label class="input-group">
+            <span>Coordenador/a</span>
+            <input type="text" id="coordenador" placeholder="Nome do Coordenador/a" required />
+          </label>
+
+          <label class="input-group">
+            <span>Nome da Turma</span>
+            <input type="text" id="nomeTurma" placeholder="Ex: Engenharia de Software" required />
+          </label>
+
+          <label class="input-group">
+            <span>Paraninfo/a</span>
+            <input type="text" id="paraninfo" placeholder="Nome do Paraninfo/a" required />
+          </label>
+
+          <label class="input-group">
+            <span>Patrono ou Patronesse</span>
+            <input type="text" id="patrono" placeholder="Nome do Patrono ou Patronesse" required />
+          </label>
+
+          <label class="input-group">
+            <span>Mestre Amigo</span>
+            <input type="text" id="mestreAmigo" placeholder="Nome do Mestre Amigo" required />
+          </label>
+
+          <label class="input-group">
+            <span>Professores/as Homenageados/as</span>
+            <textarea id="professoresHomenageados" rows="3" placeholder="Informe um nome por linha"></textarea>
+          </label>
+
+          <label class="input-group">
+            <span>Comissão de Formatura</span>
+            <textarea id="comissaoFormatura" rows="3" placeholder="Informe um nome por linha"></textarea>
+          </label>
+
+          <label class="input-group">
+            <span>Oradora</span>
+            <input type="text" id="oradora" placeholder="Nome da Oradora" required />
+          </label>
+
+          <label class="input-group">
+            <span>Juramentista</span>
+            <input type="text" id="juramentista" placeholder="Nome do Juramentista" required />
+          </label>
+
+          <label class="input-group">
+            <span>Formandos</span>
+            <textarea id="formandos" rows="5" placeholder="Informe um nome por linha" required></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button type="submit" id="salvarBotao">Salvar placa</button>
+            <button type="button" id="limparBotao" class="secondary">Limpar</button>
+          </div>
+        </form>
+      </article>
+    </section>
+  </main>
+
+  <script type="module" src="index.js" defer></script>
+</body>
+</html>
