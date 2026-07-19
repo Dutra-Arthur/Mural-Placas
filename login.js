@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gsta
 const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
 const senhaInput = document.getElementById("senha");
+const toggleSenhaButton = document.getElementById("toggleSenha");
 const errorMessage = document.getElementById("errorMessage");
 const params = new URLSearchParams(window.location.search);
 const redirectTarget = params.get("redirect") || "home.html";
@@ -21,6 +22,12 @@ loginForm.addEventListener("submit", async (event) => {
     senhaInput.value = "";
     senhaInput.focus();
   }
+});
+
+toggleSenhaButton.addEventListener("click", () => {
+  const isVisible = senhaInput.type === "text";
+  senhaInput.type = isVisible ? "password" : "text";
+  toggleSenhaButton.textContent = isVisible ? "Mostrar" : "Ocultar";
 });
 
 onAuthStateChanged(auth, (user) => {

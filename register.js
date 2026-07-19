@@ -7,7 +7,28 @@ const emailInput = document.getElementById("email");
 const senhaInput = document.getElementById("senha");
 const senhaConfirmacaoInput = document.getElementById("senhaConfirmacao");
 const adminKeyInput = document.getElementById("adminKey");
+const toggleSenhaButton = document.getElementById("toggleSenha");
+const toggleSenhaConfirmacaoButton = document.getElementById("toggleSenhaConfirmacao");
+const toggleAdminKeyButton = document.getElementById("toggleAdminKey");
 const errorMessage = document.getElementById("errorMessage");
+
+toggleSenhaButton.addEventListener("click", () => {
+  const isVisible = senhaInput.type === "text";
+  senhaInput.type = isVisible ? "password" : "text";
+  toggleSenhaButton.textContent = isVisible ? "Mostrar" : "Ocultar";
+});
+
+toggleSenhaConfirmacaoButton.addEventListener("click", () => {
+  const isVisible = senhaConfirmacaoInput.type === "text";
+  senhaConfirmacaoInput.type = isVisible ? "password" : "text";
+  toggleSenhaConfirmacaoButton.textContent = isVisible ? "Mostrar" : "Ocultar";
+});
+
+toggleAdminKeyButton.addEventListener("click", () => {
+  const isVisible = adminKeyInput.type === "text";
+  adminKeyInput.type = isVisible ? "password" : "text";
+  toggleAdminKeyButton.textContent = isVisible ? "Mostrar" : "Ocultar";
+});
 
 onAuthStateChanged(auth, (user) => {
   if (user) {

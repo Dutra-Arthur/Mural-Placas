@@ -23,17 +23,26 @@
 
           <label class="input-group">
             <span>Senha</span>
-            <input type="password" id="senha" placeholder="Digite a senha" required autocomplete="new-password" />
+            <div class="password-field">
+              <input type="password" id="senha" placeholder="Digite a senha" required autocomplete="new-password" />
+              <button type="button" id="toggleSenha" class="toggle-password">Mostrar</button>
+            </div>
           </label>
 
           <label class="input-group">
             <span>Confirme a senha</span>
-            <input type="password" id="senhaConfirmacao" placeholder="Repita a senha" required autocomplete="new-password" />
+            <div class="password-field">
+              <input type="password" id="senhaConfirmacao" placeholder="Repita a senha" required autocomplete="new-password" />
+              <button type="button" id="toggleSenhaConfirmacao" class="toggle-password">Mostrar</button>
+            </div>
           </label>
 
           <label class="input-group">
             <span>Chave de administrador</span>
-            <input type="password" id="adminKey" placeholder="Digite a chave secreta" required autocomplete="one-time-code" />
+            <div class="password-field">
+              <input type="password" id="adminKey" placeholder="Digite a chave secreta" required autocomplete="one-time-code" />
+              <button type="button" id="toggleAdminKey" class="toggle-password">Mostrar</button>
+            </div>
           </label>
 
           <div class="form-actions">

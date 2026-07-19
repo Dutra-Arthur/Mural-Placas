@@ -100,6 +100,33 @@ body {
   box-shadow: 0 0 0 4px rgba(212, 165, 0, 0.18);
 }
 
+.password-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.password-field input {
+  width: 100%;
+}
+
+.toggle-password {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.toggle-password:hover {
+  background: #fff8dc;
+  border-color: var(--primary-dark);
+}
+
 .image-input-row {
   display: grid;
   gap: 12px;
