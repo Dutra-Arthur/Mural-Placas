@@ -1,5 +1,14 @@
-﻿import { auth } from "./firebase.js";
+﻿import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+  updateDoc,
+  doc,
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const placaForm = document.getElementById("placaForm");
 const placaIdField = document.getElementById("placaId");
@@ -7,6 +16,7 @@ const imagemArquivo = document.getElementById("imagemArquivo");
 const imagemUrl = document.getElementById("imagemUrl");
 const imagePreview = document.getElementById("imagePreview");
 const anoSemestre = document.getElementById("anoSemestre");
+const presidente = document.getElementById("presidente");
 const reitor = document.getElementById("reitor");
 const diretorCampus = document.getElementById("diretorCampus");
 const coordenador = document.getElementById("coordenador");
@@ -21,6 +31,10 @@ const juramentista = document.getElementById("juramentista");
 const formandos = document.getElementById("formandos");
 const limparBotao = document.getElementById("limparBotao");
 const STORAGE_KEY = "muralPlacasData";
+const PLACAS_COLLECTION = "placas";
+const MAX_IMAGE_BYTES = 600 * 1024;
+const MAX_IMAGE_DIMENSION = 1600;
+const MIN_IMAGE_DIMENSION = 640;
 
 let placas = [];
 let currentImageData = "";
@@ -42,22 +56,55 @@ async function fazerLogout() {
   window.location.href = "login.html";
 }
 
-function carregarPlacas() {
+async function migrarLocalStorageParaFirestore() {
   const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) {
-    placas = [];
-    return;
-  }
+  if (!saved) return;
 
   try {
-    placas = JSON.parse(saved);
-  } catch (err) {
-    placas = [];
+    const dadosAntigos = JSON.parse(saved);
+    if (!Array.isArray(dadosAntigos) || dadosAntigos.length === 0) {
+      return;
+    }
+
+    for (const placa of dadosAntigos) {
+      const { id, ...placaSemId } = placa;
+      await addDoc(collection(db, PLACAS_COLLECTION), {
+        ...placaSemId,
+        updatedAt: placa.updatedAt || new Date().toISOString(),
+      });
+    }
+
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.error("Erro ao migrar dados antigos para o Firestore:", error);
   }
 }
 
-function salvarPlacas() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(placas));
+async function carregarPlacas() {
+  try {
+    const q = query(collection(db, PLACAS_COLLECTION), orderBy("updatedAt", "desc"));
+    const snapshot = await getDocs(q);
+    placas = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+
+    if (placas.length === 0) {
+      await migrarLocalStorageParaFirestore();
+      const novoSnapshot = await getDocs(q);
+      placas = novoSnapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+    }
+  } catch (error) {
+    console.error("Erro ao carregar placas do Firestore:", error);
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        placas = JSON.parse(saved);
+      } catch (parseError) {
+        console.error("Erro ao ler dados antigos do localStorage:", parseError);
+        placas = [];
+      }
+    } else {
+      placas = [];
+    }
+  }
 }
 
 function atualizarPreviewImagem(source) {
@@ -73,11 +120,71 @@ function atualizarPreviewImagem(source) {
   imagePreview.appendChild(img);
 }
 
+function canvasParaBlob(canvas, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+      } else {
+        reject(new Error("Não foi possível converter a imagem."));
+      }
+    }, "image/jpeg", quality);
+  });
+}
+
+function blobParaDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error || new Error("Não foi possível ler a imagem."));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function otimizarImagem(file) {
+  const bitmap = await createImageBitmap(file);
+
+  try {
+    const escala = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    let width = Math.round(bitmap.width * escala);
+    let height = Math.round(bitmap.height * escala);
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+      throw new Error("Seu navegador não conseguiu processar a imagem.");
+    }
+
+    while (Math.max(width, height) >= MIN_IMAGE_DIMENSION) {
+      canvas.width = width;
+      canvas.height = height;
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, width, height);
+      context.drawImage(bitmap, 0, 0, width, height);
+
+      for (const quality of [0.84, 0.76, 0.68, 0.6]) {
+        const blob = await canvasParaBlob(canvas, quality);
+        if (blob.size <= MAX_IMAGE_BYTES) {
+          return await blobParaDataUrl(blob);
+        }
+      }
+
+      width = Math.round(width * 0.85);
+      height = Math.round(height * 0.85);
+    }
+
+    throw new Error("A imagem continua muito grande após a compressão. Escolha uma imagem menor.");
+  } finally {
+    bitmap.close();
+  }
+}
+
 function limparFormulario() {
   placaIdField.value = "";
   imagemArquivo.value = "";
   imagemUrl.value = "";
   anoSemestre.value = "";
+  presidente.value = "";
   reitor.value = "";
   diretorCampus.value = "";
   coordenador.value = "";
@@ -101,6 +208,7 @@ function prepararEdicao(placa) {
   imagemArquivo.value = "";
   imagemUrl.value = placa.imageData || "";
   anoSemestre.value = placa.anoSemestre;
+  presidente.value = placa.presidente || "";
   reitor.value = placa.reitor;
   diretorCampus.value = placa.diretorCampus;
   coordenador.value = placa.coordenador;
@@ -130,19 +238,23 @@ function carregarEdicaoSeHouver() {
   prepararEdicao(placa);
 }
 
-imagemArquivo.addEventListener("change", () => {
+imagemArquivo.addEventListener("change", async () => {
   const file = imagemArquivo.files[0];
   if (!file) {
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    currentImageData = reader.result;
+  const imagemAnterior = currentImageData;
+  try {
+    currentImageData = await otimizarImagem(file);
     imagemUrl.value = "";
     atualizarPreviewImagem(currentImageData);
-  };
-  reader.readAsDataURL(file);
+  } catch (error) {
+    currentImageData = imagemAnterior;
+    imagemArquivo.value = "";
+    console.error("Erro ao processar a imagem:", error);
+    alert(error?.message || "Não foi possível processar a imagem selecionada.");
+  }
 });
 
 imagemUrl.addEventListener("input", () => {
@@ -157,9 +269,10 @@ imagemUrl.addEventListener("input", () => {
   atualizarPreviewImagem(currentImageData);
 });
 
-placaForm.addEventListener("submit", (event) => {
+placaForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const anoSemestreValue = anoSemestre.value.trim();
+  const presidenteValue = presidente.value.trim();
   const reitorValue = reitor.value.trim();
   const diretorCampusValue = diretorCampus.value.trim();
   const coordenadorValue = coordenador.value.trim();
@@ -173,7 +286,7 @@ placaForm.addEventListener("submit", (event) => {
   const juramentistaValue = juramentista.value.trim();
   const formandosValue = formandos.value.trim();
 
-  if (!anoSemestreValue || !reitorValue || !diretorCampusValue || !coordenadorValue || !nomeTurmaValue || !paraninfoValue || !patronoValue || !mestreAmigoValue || !oradoraValue || !juramentistaValue || !formandosValue) {
+  if (!anoSemestreValue || !presidenteValue || !reitorValue || !diretorCampusValue || !coordenadorValue || !nomeTurmaValue || !paraninfoValue || !patronoValue || !mestreAmigoValue || !oradoraValue || !juramentistaValue || !formandosValue) {
     alert("Preencha todos os campos obrigatórios antes de salvar a placa.");
     return;
   }
@@ -184,9 +297,10 @@ placaForm.addEventListener("submit", (event) => {
   }
 
   const placaData = {
-    id: placaIdField.value || `${Date.now()}`,
+    id: placaIdField.value || "",
     imageData: currentImageData,
     anoSemestre: anoSemestreValue,
+    presidente: presidenteValue,
     reitor: reitorValue,
     diretorCampus: diretorCampusValue,
     coordenador: coordenadorValue,
@@ -201,23 +315,45 @@ placaForm.addEventListener("submit", (event) => {
     formandos: formandosValue,
     updatedAt: new Date().toISOString(),
   };
+  const { id: placaDataId, ...dadosDaPlaca } = placaData;
 
-  if (isEditing) {
-    placas = placas.map((item) => (item.id === placaData.id ? placaData : item));
-  } else {
-    placas.unshift(placaData);
-  }
+  try {
+    if (isEditing && placaDataId) {
+      await updateDoc(doc(db, PLACAS_COLLECTION, placaDataId), dadosDaPlaca);
+      placas = placas.map((item) => (item.id === placaDataId ? { ...item, ...placaData } : item));
+    } else {
+      const novoDoc = await addDoc(collection(db, PLACAS_COLLECTION), dadosDaPlaca);
+      placaData.id = novoDoc.id;
+      placas = [{ ...placaData }, ...placas];
+    }
 
-  salvarPlacas();
-  limparFormulario();
+    limparFormulario();
 
-  const params = new URLSearchParams(window.location.search);
-  if (params.has("editId")) {
-    window.history.replaceState({}, document.title, window.location.pathname);
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("editId")) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  } catch (error) {
+    console.error("Erro ao salvar placa no Firestore:", error);
+    const codigoErro = error?.code || "desconhecido";
+    const mensagensErro = {
+      "permission-denied": "O Firestore negou a gravação. Verifique se as regras foram publicadas e se sua conta está autenticada.",
+      unauthenticated: "Sua sessão não está autenticada. Entre novamente e tente salvar.",
+      "resource-exhausted": "O documento ultrapassou um limite do Firestore. Se você anexou uma imagem, tente uma imagem menor.",
+      "invalid-argument": "O Firestore recebeu dados inválidos ou um documento muito grande. Confira os campos e o tamanho da imagem.",
+      unavailable: "O Firestore está temporariamente indisponível. Verifique a conexão e tente novamente.",
+    };
+    const mensagem = mensagensErro[codigoErro] || error?.message || "O Firestore recusou a gravação.";
+    alert(`${mensagem}\n\nCódigo: ${codigoErro}\nDetalhe: ${error?.message || "Sem detalhes adicionais."}`);
   }
 });
 
 limparBotao.addEventListener("click", limparFormulario);
+
+verificarAutenticacao();
+carregarPlacas().then(() => {
+  carregarEdicaoSeHouver();
+});
 
 carregarPlacas();
 verificarAutenticacao();
