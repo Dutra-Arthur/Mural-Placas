@@ -9,7 +9,7 @@
 
 \title{DESENVOLVIMENTO DE UMA PLATAFORMA WEB PARA CRIAÇÃO E GESTÃO
 DE PORTFÓLIOS DIGITAIS DE PLACAS DE FORMATURA: UMA CONTRIBUIÇÃO
-PARA A PRESERVAÇÃO DO ACERVO FÍSICO E MEMÓRIA ACADÊMICA}
+PARA A PRESERVAÇÃO DO ACERVO FÍSICO E DA MEMÓRIA ACADÊMICA}
 
 \author{Arthur Dutra Costa Lima\inst{1}}
 
@@ -22,223 +22,231 @@ PARA A PRESERVAÇÃO DO ACERVO FÍSICO E MEMÓRIA ACADÊMICA}
 \maketitle
 
 \begin{abstract}
-  Este trabalho apresenta o desenvolvimento de uma plataforma web para criação,
-  gestão e exibição de placas de formatura em um mural digital. A solução
-  contempla uma área pública para visualização das placas e uma área
-  administrativa para cadastrar, editar e remover informações de turma,
-  homenagens e formandos. A implementação utiliza HTML, CSS e JavaScript,
-  Firebase Authentication e Cloud Firestore. O artigo descreve a arquitetura,
-  os fluxos funcionais e as limitações identificadas no protótipo.
+  Graduation plaques record academic history, but physical and dispersed
+  collections make information difficult to locate and organize. This study
+  addresses the need to improve access to the graduation plaque collection of
+  the Universidade Estadual do Piauí (UESPI), Campus Prof. Alexandre Alves de
+  Oliveira. Its objective is to develop a web portfolio for cataloging and
+  consulting the plaques. The applied, qualitative study combines functional
+  inspection with a heuristic evaluation based on Nielsen. The prototype
+  provides a public gallery, an authenticated administrative area, and records
+  stored in Cloud Firestore. The inspection confirmed public display and
+  interactive name lists and image enlargement; it also identified that the
+  filtered search proposed in the research project is not yet implemented and
+  that successful saves lack explicit confirmation. The results describe a
+  preliminary prototype, not user-tested effectiveness or guaranteed
+  long-term digital preservation.
 \end{abstract}
-     
+
 \begin{resumo}
-  Este artigo descreve o desenvolvimento de um mural digital para placas de
-  formatura. O sistema reúne uma interface pública de consulta e uma área
-  administrativa para gerenciar registros. A solução utiliza tecnologias web,
-  Firebase Authentication e Cloud Firestore, com leitura em tempo real e
-  migração de dados legados do navegador. São discutidos os fluxos implementados
-  e os cuidados necessários para evoluir o protótipo em segurança, privacidade
-  e armazenamento de imagens.
+  As placas de formatura registram a memória acadêmica, mas sua manutenção em
+  murais físicos e arquivos dispersos dificulta localizar e organizar as
+  informações. Este trabalho aborda a necessidade de ampliar o acesso ao acervo
+  de placas da Universidade Estadual do Piauí (UESPI), Campus Prof. Alexandre
+  Alves de Oliveira. O objetivo é desenvolver um portfólio web para catalogar e
+  consultar essas placas. A pesquisa aplicada e qualitativa combina inspeção
+  funcional e avaliação heurística baseada em Nielsen. O protótipo oferece
+  galeria pública, área administrativa autenticada e registros armazenados no
+  Cloud Firestore. A inspeção confirmou a exibição pública, as listas
+  interativas de nomes e a ampliação das imagens; também identificou que a
+  busca por curso, turma ou ano foi implementada e falta
+  confirmação explícita após salvar. Os resultados descrevem um protótipo
+  preliminar, não uma eficácia comprovada com usuários nem garantia de
+  preservação digital de longo prazo.
 \end{resumo}
 
 \section{Introdução}
 
-A formatura é um evento simbólico que marca a conclusão de uma etapa acadêmica.
-As placas de formatura são elementos tradicionais que registram turmas,
-homenageiam professores e autoridades e preservam as identidades de cada
-coorte. No entanto, esses registros frequentemente permanecem em formato físico,
-fragmentado e de difícil acesso.
+As placas de formatura da Universidade Estadual do Piauí (UESPI), Campus Prof.
+Alexandre Alves de Oliveira, registram turmas, homenagens e trajetórias
+acadêmicas. Além de identificar os formandos, constituem parte da memória
+coletiva e da identidade institucional da comunidade universitária
+\cite{halbwachs1990,belluzzo2011}.
 
-A digitalização e organização dessas placas em um sistema web permitem ampliar
-o acesso, preservar o conteúdo e assegurar que as informações fiquem disponíveis
-para consultas futuras. Este trabalho propõe um protótipo de mural digital para
-placas de formatura, com foco na gestão de dados e na experiência do usuário.
+Apesar de sua relevância histórica, o projeto de pesquisa identifica que o
+acervo é mantido principalmente em murais físicos e em registros dispersos.
+Essa forma de organização dificulta localizar uma placa específica, consultar
+dados de turmas anteriores e manter informações padronizadas. A ausência de
+catalogação e de mecanismos de busca por atributos como curso, turma e ano
+amplia o tempo de consulta e o risco de perda ou deterioração dos registros
+\cite{vitorino2011}.
 
-\subsection{Objetivos e contribuições}
+A digitalização das imagens, acompanhada de metadados consistentes, pode
+facilitar a recuperação e a consulta do acervo. Um portfólio digital organiza
+as placas como itens contextualizados em vez de fotografias isoladas; essa
+organização favorece o acesso, mas não equivale, por si só, à preservação
+permanente \cite{conway1996,ribeiro2018}. A proposta justifica-se pela
+possibilidade de ampliar o acesso público e apoiar a gestão institucional da
+memória acadêmica, mantendo a placa física como registro original.
 
-O objetivo principal deste trabalho é desenvolver uma plataforma web que
-integre visualização pública e gestão administrativa de placas de formatura.
-As contribuições do projeto são:
+Diante desse problema, a questão de pesquisa é: como desenvolver uma aplicação
+web capaz de digitalizar, catalogar e permitir consultas às placas de
+formandos, facilitando o acesso e a organização do acervo da UESPI?
 
-\begin{itemize}
-  \item digitalizar e organizar placas de formatura em um mural virtual;
-  \item fornecer uma interface pública para acesso e leitura das placas;
-  \item implementar uma área administrativa com autenticação para manutenção dos registros;
-  \item estruturar os dados de formandos, homenagens e autoridades acadêmicas;
-  \item demonstrar a viabilidade de um protótipo web leve e acessível.
-\end{itemize}
+\subsection{Objetivo e contribuições}
+
+O objetivo é desenvolver uma aplicação web para organizar, armazenar e
+disponibilizar placas de formatura da UESPI, Campus Prof. Alexandre Alves de
+Oliveira. Busca-se oferecer uma galeria pública, um fluxo administrativo para
+manutenção dos registros e uma base de dados estruturada. A busca filtrada por
+curso, turma e ano, prevista no projeto de pesquisa, está disponível no mural
+por meio de campos de busca e seleção.
+
+A avaliação relatada combina inspeção funcional e avaliação heurística das
+interfaces, sem participantes. Os resultados confirmam a galeria, o
+gerenciamento autenticado e a persistência no Firestore; também revelam a confirmação explícita após salvar como melhoria pendente.
+Consequentemente, o artigo apresenta o estado do protótipo e suas limitações,
+não a conclusão de todos os objetivos previstos nem a eficácia com usuários
+reais.
 
 \section{Referencial teórico}
 
-\subsection{Preservação e acesso digital}
+\subsection{Memória institucional e organização da informação}
 
-A digitalização consiste em converter um registro físico, como uma placa, em
-uma representação digital, por exemplo, uma fotografia. A organização acrescenta
-estrutura e contexto a essa representação, associando-a a dados como turma,
-período, homenagens e instituição. O acesso diz respeito à possibilidade de
-localizar, consultar e compreender o material. Já a preservação digital é um
-processo contínuo: requer ações que mantenham os arquivos íntegros, legíveis e
-disponíveis ao longo do tempo, e não apenas sua conversão ou publicação
-\cite{conway1996}.
+A memória coletiva é formada e mantida por registros e referências
+compartilhados por um grupo; no ambiente universitário, placas de formatura
+materializam vínculos entre turmas, docentes e instituição \cite{halbwachs1990}.
+Para que esses registros também possam apoiar consultas e pesquisas, é
+necessário organizá-los e descrevê-los de modo consistente. A gestão da
+informação e da memória organizacional relaciona a estrutura dos registros à
+possibilidade de recuperá-los e reutilizá-los
+\cite{belluzzo2011,vitorino2011,nonaka1997}.
 
-As placas também têm uma dimensão memorial: registram vínculos da turma com
-seus colegas, docentes e instituição. Por isso, o mural é concebido como forma
-de organizar e tornar consultável esse registro coletivo, sem pressupor que a
-digitalização substitua o objeto físico ou, isoladamente, assegure sua
-preservação. No protótipo, os dados descritivos e a imagem são associados em um
-registro estruturado, o que favorece a consulta; cópias de segurança e
-estratégias de preservação de longo prazo ainda são necessárias.
+\subsection{Digitalização de imagens e portfólio digital}
 
-\subsection{Aplicações web e usabilidade}
+A digitalização de uma placa transforma sua imagem física em um arquivo que
+pode ser consultado por meios digitais. A fotografia, contudo, não contém
+necessariamente informações suficientes para identificar curso, turma, ano ou
+homenageados. A associação de metadados e práticas de indexação permite
+descrever os itens e apoiar sua recuperação \cite{lancaster2004}. Neste
+trabalho, portfólio digital designa uma coleção organizada de representações
+digitais e informações contextuais, e não apenas um diretório de imagens.
 
-Usabilidade envolve permitir que diferentes usuários aprendam a utilizar o
-sistema, realizem suas tarefas com eficiência e evitem erros, considerando
-também a clareza das informações apresentadas \cite{nielsen1993}. No mural
-público, isso se relaciona à leitura e à consulta das placas sem exigir uma
-conta. Na interface administrativa, relaciona-se à identificação dos campos,
-ao preenchimento do formulário e ao retorno dado após ações como salvar ou
-editar. Esses aspectos orientam o projeto da interface, mas sua qualidade
-precisa ser confirmada por avaliação com usuários, ainda não realizada neste
-trabalho.
+A digitalização pode ampliar o acesso e reduzir a dependência da consulta
+presencial, mas não substitui uma estratégia de preservação. Esta envolve
+organização, integridade, cópias de segurança e disponibilidade continuada dos
+arquivos \cite{conway1996,ribeiro2018,valenti2013}. O sistema proposto associa
+a imagem da placa a dados estruturados da turma, contribuindo para sua
+consulta; a preservação de longo prazo permanece uma necessidade institucional.
 
-Na engenharia de software, requisitos funcionais descrevem os serviços que o
-sistema deve oferecer; requisitos não funcionais expressam qualidades e
-restrições desses serviços \cite{sommerville2015}. Para esta aplicação, são
-funcionais a consulta pública e as operações administrativas de cadastro,
-edição e remoção. Usabilidade, proteção dos dados, disponibilidade e desempenho
-são requisitos não funcionais relevantes. A separação entre mural e painel
-administrativo responde a públicos e tarefas distintos, enquanto autenticação
-e regras do Firestore participam do controle de acesso. A implementação dessas
-medidas não comprova, por si só, que os requisitos de qualidade foram atendidos;
-isso depende de testes e critérios de avaliação definidos.
+\subsection{Requisitos, usabilidade e acessibilidade}
 
-\subsection{Serviços Firebase}
+Requisitos funcionais especificam os serviços oferecidos pelo sistema,
+enquanto requisitos não funcionais tratam de qualidades e restrições, como
+usabilidade, segurança e desempenho \cite{sommerville2015}. No projeto, a
+consulta pública e as operações de cadastro, edição e remoção são funcionais;
+facilidade de navegação, clareza, acessibilidade e proteção dos dados são
+atributos de qualidade a considerar.
 
-O Firebase Authentication fornece mecanismos de autenticação para aplicações
-web, enquanto o Cloud Firestore oferece persistência de documentos e notificações
-sobre alterações em consultas \cite{firebaseauth,firestorelisten}. As regras do
-Firestore definem permissões no serviço, independentemente da interface do
-cliente \cite{firestoresecurity}. Neste projeto, a leitura dos registros é
-pública e as operações de escrita exigem uma sessão autenticada.
+A avaliação heurística permite inspecionar interfaces sem participação direta
+de usuários, verificando princípios como visibilidade do estado, consistência,
+prevenção de erros e correspondência com as tarefas \cite{nielsen1993,
+shneiderman2016}. Para o mural, esses princípios orientam a leitura dos cartões
+e a consulta das listas; para o painel, orientam o preenchimento do formulário,
+a pré-visualização e o retorno após as ações. Diretrizes de acessibilidade
+incluem contraste, alternativas textuais e navegação compreensível
+\cite{wcag2020}. A inspeção heurística identifica possíveis problemas, mas não
+substitui testes com usuários nem uma auditoria formal de acessibilidade.
 
 \section{Metodologia}
 
-O trabalho caracteriza-se como desenvolvimento aplicado de um protótipo de
-software, organizado nas etapas a seguir:
+Esta é uma pesquisa aplicada, de abordagem qualitativa e caráter exploratório
+e descritivo, conforme a classificação adotada no projeto de pesquisa. O objeto
+é o desenvolvimento de um artefato web para apoiar a organização e a consulta
+de placas de formatura da UESPI, Campus Prof. Alexandre Alves de Oliveira.
+
+\subsection{Levantamento e fontes de informação}
+
+O projeto de pesquisa registra pesquisa bibliográfica sobre memória
+institucional, gestão da informação, preservação digital e usabilidade; análise
+documental das placas existentes; observação direta das condições de exposição
+e consulta; e reuniões de orientação para discutir requisitos e organização
+do sistema. O documento não informa bases bibliográficas consultadas, termos
+de busca, período de cobertura nem critérios de inclusão e exclusão. Por isso,
+a revisão é tratada neste artigo como narrativa e exploratória, não como revisão
+sistemática. O Cloud Firestore, descrito adiante, é a base de dados da
+aplicação, não uma base bibliográfica da pesquisa.
+
+\subsection{Etapas de desenvolvimento}
+
+O percurso de desenvolvimento foi organizado nas etapas a seguir, sintetizadas
+do projeto e confrontadas com os artefatos da aplicação:
 
 \begin{enumerate}
-  \item \textbf{Levantamento de requisitos:} os requisitos foram delimitados a
-    partir do objetivo do projeto e das informações que uma placa deve
-    apresentar. O formulário e as páginas definem dois fluxos: consulta pública
-    e gerenciamento administrativo. Não foram realizadas entrevistas,
-    questionários ou observações formais com usuários; portanto, o levantamento
-    representa o escopo funcional do protótipo, não uma pesquisa de necessidades
-    junto a seus públicos.
-  \item \textbf{Modelagem:} os fluxos foram separados entre mural público e
-    painel administrativo. Os dados foram organizados como documentos da
-    coleção \texttt{placas}, com campos para identificação da turma, período,
-    representantes, homenagens, formandos e imagem.
-  \item \textbf{Implementação:} as páginas foram construídas em HTML, a
-    apresentação visual em CSS e as interações em JavaScript. O formulário
-    contempla validação de campos obrigatórios, pré-visualização de imagem e
-    operações de cadastro e edição; o mural apresenta os registros e oferece a
-    ação de remoção.
-  \item \textbf{Integração:} o Firebase Authentication foi associado ao acesso
-    administrativo e o Cloud Firestore à persistência e consulta dos registros.
-    As regras configuradas permitem leitura pública e exigem autenticação para
-    operações de escrita.
-  \item \textbf{Validação:} foi feita uma inspeção qualitativa das páginas,
-    dos scripts e das regras. A usabilidade das interfaces foi examinada por
-    avaliação heurística, tomando como referência os princípios de Nielsen
-    \cite{nielsen1993}: visibilidade do estado do sistema, correspondência com
-    a linguagem do usuário, controle e liberdade, consistência, prevenção e
-    recuperação de erros e reconhecimento. A inspeção funcional verificou a
-    presença da consulta pública, da validação de campos obrigatórios, dos
-    fluxos de criação, edição e remoção e da exigência de autenticação para
-    escrita.
+  \item \textbf{Análise do problema e requisitos:} delimitação do acervo a
+    consultar e dos dados associados às placas. Foram considerados como
+    requisitos funcionais a exibição pública e o gerenciamento administrativo;
+    a busca filtrada por curso, turma e ano foi implementada no mural público.
+  \item \textbf{Modelagem:} separação dos fluxos público e administrativo e
+    organização dos campos em registros estruturados, incluindo turma, período,
+    presidente, autoridades, homenagens, formandos e imagem.
+  \item \textbf{Construção da interface:} elaboração das páginas do mural,
+    autenticação e formulário administrativo, com apresentação adaptável a
+    diferentes larguras de tela.
+  \item \textbf{Implementação e integração:} desenvolvimento dos fluxos de
+    cadastro, edição, remoção e consulta; integração do Firebase Authentication
+    e do Cloud Firestore; e associação da imagem ao registro da placa.
+  \item \textbf{Inspeção e refinamento:} análise funcional dos fluxos existentes
+    e avaliação heurística das interfaces. Os testes abrangentes de
+    compatibilidade e responsividade previstos no projeto não são apresentados
+    como resultados quando não há registro de sua execução sistemática.
 \end{enumerate}
 
-A validação descrita verifica a presença desses fluxos nos artefatos do
-protótipo; não comprova que as operações foram executadas com sucesso em um
-ambiente de produção. Não foram realizados testes automatizados, testes com
-participantes, avaliações controladas de usabilidade ou medições de desempenho.
-Assim, os resultados são limitados à análise do código e das interfaces, sem
-constituir evidência de eficácia para uma população de usuários.
+\subsection{Base de dados da aplicação e avaliação}
 
-\section{Arquitetura do sistema}
+Os registros são mantidos na coleção \texttt{placas} do Cloud Firestore. Cada
+documento reúne dados descritivos e a imagem da placa; consultas públicas
+recebem atualizações por escuta em tempo real. O Firebase Authentication é
+utilizado no acesso administrativo, e as regras do Firestore permitem leitura
+pública e exigem autenticação para escrita \cite{firebaseauth,firestorelisten,
+firestoresecurity}.
 
-\subsection{Componentes da aplicação}
+A avaliação combinou inspeção funcional e avaliação heurística de Nielsen
+\cite{nielsen1993}. Na inspeção funcional, foram verificados no código e no
+navegador os fluxos disponíveis de consulta, abertura das listas, ampliação da
+imagem e controles administrativos. Na avaliação heurística, foram observadas
+clareza dos rótulos, correspondência com as tarefas, consistência, visibilidade
+do estado, prevenção de erros e controle das ações. Não foram realizados testes
+com participantes, medições de desempenho nem validação sistemática em vários
+navegadores e dispositivos; portanto, os achados não permitem afirmar eficácia
+ou satisfação de usuários reais.
 
-A plataforma é composta por quatro páginas principais:
+\section{Arquitetura e implementação}
 
-\begin{itemize}
-  \item \texttt{index.html}: mural público para visualização das placas;
-  \item \texttt{home.html}: painel administrativo para cadastro e edição;
-  \item \texttt{login.html}: autenticação de usuários;
-  \item \texttt{register.html}: cadastro de contas.
-\end{itemize}
+\subsection{Componentes e modelo de dados}
 
-O arquivo \texttt{firebase.js} configura o Firebase Authentication e o Cloud
-Firestore. O painel administrativo usa autenticação para restringir o acesso,
-enquanto as regras do Firestore permitem a leitura pública dos registros e
-exigem autenticação para operações de escrita.
+A aplicação é composta por quatro páginas principais: \texttt{index.html},
+que apresenta o mural público; \texttt{home.html}, que contém o painel
+administrativo; e as páginas \texttt{login.html} e \texttt{register.html},
+relacionadas à autenticação. O arquivo \texttt{firebase.js} configura o Firebase
+Authentication e o Cloud Firestore. As regras permitem leitura pública e exigem
+autenticação para escrita \cite{firestoresecurity}.
 
-\subsection{Modelo dos registros}
-
-Cada documento da coleção \texttt{placas} contém dados de identificação da
-turma, período, autoridades acadêmicas, homenagens, comissão de formatura,
-formandos e imagem. A Tabela~\ref{tab:fields} resume os grupos de informação
-mantidos pelo formulário.
+Cada documento da coleção \texttt{placas} reúne a imagem e dados de identificação
+da turma, período, presidente, autoridades, homenagens, comissão de formatura e
+formandos. A Figura~\ref{fig:arquitetura} resume os fluxos principais, e a
+Tabela~\ref{tab:fields} apresenta os campos registrados.
 
 \begin{figure}[ht]
 \centering
 \fbox{\parbox{0.85\textwidth}{\centering
 Visitante $\rightarrow$ mural público $\rightarrow$ Cloud Firestore\\[4pt]
 Administrador $\rightarrow$ painel $\rightarrow$ Firebase Authentication\\[4pt]
-Painel administrativo $\rightarrow$ operações de placas $\rightarrow$ Cloud Firestore}}
-\caption{Visão simplificada dos componentes e fluxos da aplicação.}
+Painel administrativo $\rightarrow$ registros de placas $\rightarrow$ Cloud Firestore}}
+\caption{Componentes e fluxos principais da aplicação.}
 \label{fig:arquitetura}
 \end{figure}
-
-\section{Implementação}
-
-O front-end combina HTML, CSS e JavaScript. Os módulos separam a renderização
-do mural, o gerenciamento do formulário e a comunicação com os serviços
-Firebase.
-
-\subsection{Gerenciamento de placas}
-
-O arquivo \texttt{mural.js} é responsável pela renderização do mural público. O
-script consulta a coleção \texttt{placas} no Firestore e recebe alterações por
-meio de \texttt{onSnapshot}. Os registros são ordenados pela data de atualização
-e apresentados em cartões. A remoção solicita confirmação antes de chamar
-\texttt{deleteDoc}; a edição encaminha o identificador do registro ao painel.
-
-\subsection{Formulário e persistência}
-
-O arquivo \texttt{index.js} gerencia o formulário administrativo em \texttt{home.html}.
-O formulário permite selecionar uma imagem local ou informar uma URL, valida os
-campos obrigatórios e cria ou atualiza documentos com \texttt{addDoc} e
-\texttt{updateDoc}. A aplicação também tenta migrar registros da chave
-\texttt{muralPlacasData} no \texttt{localStorage} quando a coleção consultada
-está vazia. Assim, o armazenamento local é tratado como origem legada ou
-alternativa de leitura em caso de falha, e não como persistência principal.
-
-As imagens selecionadas são convertidas no navegador em URLs de dados e
-incluídas nos documentos. Embora simplifique o protótipo, essa abordagem pode
-elevar o tamanho dos documentos e precisa ser revista considerando os limites do
-Firestore \cite{firestorequotas}. Uma evolução possível é armazenar os arquivos
-em um serviço de objetos e manter no documento apenas a referência à imagem.
 
 \begin{table}[ht]
 \centering
 \caption{Campos principais do cadastro de placas}
 \label{tab:fields}
-\begin{tabular}{ll}
+\begin{tabular}{p{4cm}p{10cm}}
 \hline
 Campo & Descrição \\
 \hline
 Ano/Semestre & Período da turma \\
+Curso & Curso associado à placa \\
 Presidente & Nome do presidente \\
 Reitor/a & Nome do reitor ou reitora \\
 Diretor/a do campus & Nome do diretor do campus \\
@@ -248,101 +256,130 @@ Paraninfo/a & Nome do paraninfo \\
 Patrono/Patronesse & Nome do patrono \\
 Mestre Amigo & Nome do mestre amigo \\
 Professores/as homenageados/as & Lista de professores homenageados \\
-Oradora & Nome da oradora \\
-Juramentista & Nome do juramentista \\
+Comissão de formatura & Lista de integrantes da comissão \\
+Oradora e juramentista & Representantes da turma \\
 Formandos & Lista de formandos \\
 \hline
 \end{tabular}
 \end{table}
 
-\subsection{Autenticação}
+\subsection{Mural e gerenciamento}
 
-O sistema utiliza Firebase Authentication em \texttt{login.js} e
-\texttt{register.js}. O login valida e-mail e senha, e o cadastro inicial exige
-uma chave definida no JavaScript do cliente. Como o código entregue ao navegador
-pode ser inspecionado, essa chave não deve ser considerada um mecanismo robusto
-de autorização. A criação de contas e a atribuição de privilégios devem ser
-controladas por um processo confiável. Além disso, como os registros podem
-conter nomes de pessoas, sua publicação deve considerar finalidade e proteção
-de dados pessoais, conforme a legislação brasileira \cite{brasil2018}.
+O arquivo \texttt{mural.js} consulta a coleção \texttt{placas} e recebe
+atualizações por \texttt{onSnapshot}. Os registros são ordenados pela data de
+atualização e apresentados em cartões. As listas de professores homenageados,
+comissão e formandos são recolhíveis; a imagem pode ser ampliada em um diálogo.
+Usuários autenticados recebem controles de edição e remoção. O mural também
+possui campo de busca textual e seletores de curso e ano/semestre. Os filtros
+combinam texto com nome do curso, turma e período, atualizam o conjunto exibido
+sem nova consulta ao servidor e mostram a quantidade de resultados. A consulta
+do mural em tempo real é fornecida pelo listener do Firestore
+\cite{firestorelisten}.
 
-\section{Avaliação}
+O arquivo \texttt{index.js} gerencia o formulário administrativo. O cadastro
+valida campos obrigatórios e cria ou atualiza documentos. Imagens selecionadas
+são redimensionadas e convertidas no navegador para JPEG antes do envio,
+reduzindo o risco de ultrapassar o limite por documento do Firestore
+\cite{firestorequotas}. A aplicação também tenta migrar registros legados da
+chave \texttt{muralPlacasData} no \texttt{localStorage} quando a coleção está
+vazia.
 
-\subsection{Avaliação heurística}
+Apesar da compressão, a imagem continua incorporada ao documento como URL de
+dados. Para acervos maiores, recomenda-se armazenar os arquivos em serviço de
+objetos e manter no Firestore apenas a referência, além de estabelecer rotinas
+de cópia de segurança e preservação.
 
-A inspeção heurística considerou dois percursos: a consulta de placas por um
-visitante e o gerenciamento de um registro por um administrador. Foram
-observados a clareza dos rótulos, a correspondência entre os campos e os dados
-solicitados, o retorno visual das ações, os mecanismos de prevenção de erros e
-as possibilidades de controle oferecidas ao usuário. A análise foi orientada
-pelos princípios de Nielsen \cite{nielsen1993} e limitada às interfaces e aos
-comportamentos presentes no código; não envolveu participantes nem mede a
-experiência de usuários reais.
+\subsection{Autenticação e proteção de dados}
 
-Na interface administrativa, os rótulos dos campos, a indicação de campos
-obrigatórios, a pré-visualização da imagem e a confirmação antes da remoção
-favorecem reconhecimento, prevenção de erros e controle da ação. O código
-também apresenta mensagens de erro em situações de falha. Como lacuna, não há
-uma confirmação visual explícita após o salvamento bem-sucedido: o formulário
-é limpo, mas não informa diretamente que o registro foi gravado. No mural
-público, a contagem de placas e a apresentação em cartões ajudam a identificar
-o conteúdo disponível; esta inspeção, entretanto, não avaliou compreensão ou
-facilidade de uso com visitantes.
+O sistema utiliza Firebase Authentication para o login e o cadastro. A chave
+administrativa definida no JavaScript do cliente pode ser inspecionada e, por
+isso, não constitui mecanismo robusto de autorização. As regras do Firestore
+são a camada efetiva que exige autenticação para operações de escrita; as
+permissões atuais permitem que qualquer usuário autenticado altere os registros.
+Como as placas podem conter nomes e imagens de pessoas, a publicação deve
+considerar finalidade e proteção dos dados pessoais, conforme a legislação
+brasileira \cite{brasil2018}.
 
-\subsection{Verificação dos fluxos funcionais}
+\section{Resultados e discussão}
 
-A inspeção do código identificou os fluxos apresentados na
-Tabela~\ref{tab:flows}. Essa análise verifica a presença dos comportamentos na
-implementação e complementa a avaliação heurística; não representa uma
-campanha de testes com usuários.
+\subsection{Resultados funcionais}
+
+A Tabela~\ref{tab:flows} distingue funcionalidades observadas no protótipo,
+fluxos presentes no código e requisitos previstos. A consulta
+pública, a expansão das listas de nomes e a ampliação da imagem foram
+verificadas no navegador. A existência de código para uma operação de escrita,
+por si só, não equivale à validação completa dessa operação em produção.
 
 \begin{table}[ht]
 \centering
-\caption{Fluxos funcionais identificados no protótipo}
+\caption{Situação dos requisitos funcionais do protótipo}
 \label{tab:flows}
-\begin{tabular}{p{3.2cm}p{6.2cm}p{4.6cm}}
+\begin{tabular}{p{3.0cm}p{5.8cm}p{5.2cm}}
 \hline
-Fluxo & Comportamento implementado & Observação \\
+Requisito & Situação observada & Observação \\
 \hline
-Consulta pública & Atualiza e renderiza a coleção de placas & Depende do Firestore \\
-Cadastro & Valida campos e cria documento & Exige autenticação \\
-Edição & Atualiza o documento da placa & Exige autenticação \\
-Remoção & Confirma e exclui documento & Exige autenticação \\
-Migração & Transfere dados locais se a coleção estiver vazia & Trata registros legados \\
+Consulta pública & Implementada e observada no navegador & Atualização via Firestore \\
+Cadastro e edição & Fluxos presentes no código & Escrita requer autenticação \\
+Remoção & Controle disponível a usuários autenticados & Solicita confirmação \\
+Listas e imagem & Implementadas e observadas no navegador & Listas recolhíveis; imagem ampliável \\
+Busca filtrada & Implementada por texto, curso e ano & Contador atualizado; compatível com registros antigos \\
+Compatibilidade e responsividade & Não avaliadas sistematicamente & Permanecem como validação futura \\
+Migração local & Prevista no código & Trata registros legados do navegador \\
 \hline
 \end{tabular}
 \end{table}
 
-\subsection{Limitações e discussão}
+\subsection{Avaliação heurística}
 
-A leitura em tempo real permite que a interface pública receba alterações sem
-depender exclusivamente dos dados de um único navegador. Em contrapartida, o
-sistema depende de conexão e de regras corretamente configuradas. As regras
-atuais autorizam qualquer usuário autenticado a alterar qualquer placa; caso
-existam diferentes perfis administrativos, será necessário implementar
-autorização por função.
+A inspeção considerou percursos de consulta pública e gerenciamento
+administrativo, orientados pelos princípios de Nielsen \cite{nielsen1993} e
+pelos critérios de interação de Shneiderman \cite{shneiderman2016}. Foram
+observados clareza dos rótulos, correspondência com as tarefas, consistência,
+visibilidade do estado, prevenção de erros e controle das ações.
 
-A chave de cadastro embutida no cliente não restringe efetivamente a criação
-de contas, e o acesso público aos documentos deve ser compatível com a
-autorização para divulgar os dados. Por fim, imagens codificadas diretamente
-nos documentos podem atingir limites de tamanho e aumentar a transferência de
-dados. Essas restrições delimitam o protótipo e orientam sua evolução antes de
-uma implantação institucional.
+No painel, os rótulos, a indicação de campos obrigatórios, a pré-visualização
+da imagem e a confirmação antes da remoção ajudam a prevenir erros e a manter o
+controle. No mural, a contagem, os cartões, as listas expansíveis e o diálogo
+da imagem tornam visíveis as ações disponíveis. A inspeção identificou uma
+lacuna: após um salvamento bem-sucedido, o formulário é limpo sem apresentar
+confirmação explícita. Essa análise é heurística e não substitui avaliação com
+usuários, testes formais de acessibilidade ou verificação de compatibilidade
+abrangente.
+
+\subsection{Limitações}
+
+A busca filtrada por curso, turma ou ano foi implementada, mas ainda não passou
+por testes com usuários. Também não foram conduzidos testes com participantes,
+medições de desempenho ou validação sistemática em diferentes navegadores e
+dispositivos. Portanto, os resultados não permitem concluir sobre a experiência
+de usuários reais ou a eficácia da aplicação em escala institucional.
+
+A chave administrativa no cliente não restringe efetivamente a criação de
+contas, e as regras atuais permitem que qualquer usuário autenticado altere
+qualquer placa. Além disso, imagens codificadas nos documentos podem aumentar a
+transferência de dados e atingir limites do Firestore. Essas condições precisam
+ser revistas antes de uma implantação institucional mais ampla.
 
 \section{Conclusão}
 
-Este artigo apresentou o desenvolvimento de um mural digital para criação,
-consulta e gestão de placas de formatura. A aplicação integra uma interface
-pública, um painel administrativo, autenticação de usuários e persistência no
-Cloud Firestore. A análise do código identificou os fluxos de consulta,
-cadastro, edição, remoção e migração de registros locais, além de limitações que
-devem ser tratadas antes de ampliar o uso do sistema.
+Este artigo converteu o projeto de pesquisa em um relato do protótipo de
+portfólio digital de placas de formatura da UESPI. A solução reúne consulta
+pública, gerenciamento administrativo autenticado, persistência no Firestore e
+visualização ampliada das imagens. A avaliação heurística e a inspeção
+funcional indicaram que esses recursos apoiam a organização inicial do acervo,
+e incorporou a busca filtrada por curso, turma e ano. Não foram realizadas
+avaliações com participantes nem testes
+sistemáticos de desempenho, responsividade ou compatibilidade; por isso, os
+resultados não permitem concluir sobre a experiência de usuários ou a eficácia
+da preservação a longo prazo.
 
-Como trabalhos futuros, propõem-se testes de usabilidade com participantes,
-revisão das regras de autorização, controle seguro do cadastro de
-administradores, armazenamento de imagens em serviço apropriado e definição de
-procedimentos para consentimento, cópias de segurança e preservação dos
-registros.
+Como continuidade, recomenda-se implementar filtros por curso, turma e ano;
+realizar testes de compatibilidade e responsividade; conduzir avaliação com
+usuários; aperfeiçoar as regras de acesso e o cadastro administrativo; e
+transferir imagens para armazenamento de arquivos com rotinas de cópia de
+segurança. Essas etapas aproximariam o sistema dos objetivos completos do
+projeto e fortaleceriam sua utilização como instrumento de acesso à memória
+acadêmica.
 
 \bibliographystyle{sbc}
 \bibliography{tcc_mural_placas}

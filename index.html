@@ -27,6 +27,26 @@
           <span id="placasCount">0 placas</span>
         </div>
 
+        <form id="filtrosPlacas" class="placa-filters" role="search">
+          <label class="filter-field">
+            <span>Buscar</span>
+            <input type="search" id="buscaPlaca" placeholder="Curso ou nome da turma" />
+          </label>
+          <label class="filter-field">
+            <span>Curso</span>
+            <select id="filtroCurso">
+              <option value="">Todos os cursos</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Ano/Semestre</span>
+            <select id="filtroAno">
+              <option value="">Todos os períodos</option>
+            </select>
+          </label>
+          <button type="button" id="limparFiltros" class="filter-clear">Limpar filtros</button>
+        </form>
+
         <div id="mural" class="mural-grid"></div>
       </article>
     </section>

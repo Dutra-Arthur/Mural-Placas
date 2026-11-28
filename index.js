@@ -20,6 +20,7 @@ const presidente = document.getElementById("presidente");
 const reitor = document.getElementById("reitor");
 const diretorCampus = document.getElementById("diretorCampus");
 const coordenador = document.getElementById("coordenador");
+const curso = document.getElementById("curso");
 const nomeTurma = document.getElementById("nomeTurma");
 const paraninfo = document.getElementById("paraninfo");
 const patrono = document.getElementById("patrono");
@@ -32,9 +33,9 @@ const formandos = document.getElementById("formandos");
 const limparBotao = document.getElementById("limparBotao");
 const STORAGE_KEY = "muralPlacasData";
 const PLACAS_COLLECTION = "placas";
-const MAX_IMAGE_BYTES = 600 * 1024;
-const MAX_IMAGE_DIMENSION = 1600;
-const MIN_IMAGE_DIMENSION = 640;
+const MAX_IMAGE_BYTES = 350 * 1024;
+const MAX_IMAGE_DIMENSION = 1280;
+const MIN_IMAGE_DIMENSION = 320;
 
 let placas = [];
 let currentImageData = "";
@@ -162,7 +163,7 @@ async function otimizarImagem(file) {
       context.fillRect(0, 0, width, height);
       context.drawImage(bitmap, 0, 0, width, height);
 
-      for (const quality of [0.84, 0.76, 0.68, 0.6]) {
+      for (const quality of [0.78, 0.68, 0.58, 0.48]) {
         const blob = await canvasParaBlob(canvas, quality);
         if (blob.size <= MAX_IMAGE_BYTES) {
           return await blobParaDataUrl(blob);
@@ -188,6 +189,7 @@ function limparFormulario() {
   reitor.value = "";
   diretorCampus.value = "";
   coordenador.value = "";
+  curso.value = "";
   nomeTurma.value = "";
   paraninfo.value = "";
   patrono.value = "";
@@ -212,6 +214,7 @@ function prepararEdicao(placa) {
   reitor.value = placa.reitor;
   diretorCampus.value = placa.diretorCampus;
   coordenador.value = placa.coordenador;
+  curso.value = placa.curso || "";
   nomeTurma.value = placa.nomeTurma;
   paraninfo.value = placa.paraninfo;
   patrono.value = placa.patrono;
@@ -241,6 +244,12 @@ function carregarEdicaoSeHouver() {
 imagemArquivo.addEventListener("change", async () => {
   const file = imagemArquivo.files[0];
   if (!file) {
+    return;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    imagemArquivo.value = "";
+    alert("Selecione um arquivo de imagem válido.");
     return;
   }
 
@@ -276,6 +285,7 @@ placaForm.addEventListener("submit", async (event) => {
   const reitorValue = reitor.value.trim();
   const diretorCampusValue = diretorCampus.value.trim();
   const coordenadorValue = coordenador.value.trim();
+  const cursoValue = curso.value.trim();
   const nomeTurmaValue = nomeTurma.value.trim();
   const paraninfoValue = paraninfo.value.trim();
   const patronoValue = patrono.value.trim();
@@ -286,7 +296,7 @@ placaForm.addEventListener("submit", async (event) => {
   const juramentistaValue = juramentista.value.trim();
   const formandosValue = formandos.value.trim();
 
-  if (!anoSemestreValue || !presidenteValue || !reitorValue || !diretorCampusValue || !coordenadorValue || !nomeTurmaValue || !paraninfoValue || !patronoValue || !mestreAmigoValue || !oradoraValue || !juramentistaValue || !formandosValue) {
+  if (!anoSemestreValue || !presidenteValue || !reitorValue || !diretorCampusValue || !coordenadorValue || !cursoValue || !nomeTurmaValue || !paraninfoValue || !patronoValue || !mestreAmigoValue || !oradoraValue || !juramentistaValue || !formandosValue) {
     alert("Preencha todos os campos obrigatórios antes de salvar a placa.");
     return;
   }
@@ -294,6 +304,11 @@ placaForm.addEventListener("submit", async (event) => {
   if (!currentImageData) {
     const confirmNoImage = confirm("Nenhuma imagem foi selecionada. Deseja continuar sem imagem?");
     if (!confirmNoImage) return;
+  }
+
+  if (currentImageData.startsWith("data:image/") && currentImageData.length * 0.75 > MAX_IMAGE_BYTES) {
+    alert("A imagem continua muito grande. Selecione uma imagem menor ou use uma URL externa.");
+    return;
   }
 
   const placaData = {
@@ -304,6 +319,7 @@ placaForm.addEventListener("submit", async (event) => {
     reitor: reitorValue,
     diretorCampus: diretorCampusValue,
     coordenador: coordenadorValue,
+    curso: cursoValue,
     nomeTurma: nomeTurmaValue,
     paraninfo: paraninfoValue,
     patrono: patronoValue,

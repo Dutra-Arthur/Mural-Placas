@@ -11,6 +11,11 @@ import {
 
 const mural = document.getElementById("mural");
 const placasCount = document.getElementById("placasCount");
+const filtrosPlacas = document.getElementById("filtrosPlacas");
+const buscaPlaca = document.getElementById("buscaPlaca");
+const filtroCurso = document.getElementById("filtroCurso");
+const filtroAno = document.getElementById("filtroAno");
+const limparFiltros = document.getElementById("limparFiltros");
 const PLACAS_COLLECTION = "placas";
 let placas = [];
 let usuarioAutenticado = false;
@@ -32,8 +37,61 @@ fotoDialog.addEventListener("click", (event) => {
 fotoDialog.addEventListener("close", () => fotoAmpliada.removeAttribute("src"));
 document.body.appendChild(fotoDialog);
 
-function atualizarPlacasCount() {
-  placasCount.textContent = `${placas.length} placa${placas.length === 1 ? "" : "s"}`;
+function atualizarPlacasCount(total = placas.length) {
+  placasCount.textContent = `${total} placa${total === 1 ? "" : "s"}`;
+}
+
+function normalizarTexto(valor) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function atualizarOpcoesFiltros() {
+  if (!filtroCurso || !filtroAno) return;
+
+  const cursos = [...new Set(placas.map((placa) => placa.curso?.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  const anos = [...new Set(placas.map((placa) => placa.anoSemestre?.trim()).filter(Boolean))].sort((a, b) => b.localeCompare(a, "pt-BR", { numeric: true }));
+
+  const cursoAtual = filtroCurso.value;
+  filtroCurso.innerHTML = '<option value="">Todos os cursos</option>';
+  cursos.forEach((curso) => {
+    const option = document.createElement("option");
+    option.value = curso;
+    option.textContent = curso;
+    filtroCurso.appendChild(option);
+  });
+  if (cursos.includes(cursoAtual)) filtroCurso.value = cursoAtual;
+
+  const anoAtual = filtroAno.value;
+  filtroAno.innerHTML = '<option value="">Todos os períodos</option>';
+  anos.forEach((ano) => {
+    const option = document.createElement("option");
+    option.value = ano;
+    option.textContent = ano;
+    filtroAno.appendChild(option);
+  });
+  if (anos.includes(anoAtual)) filtroAno.value = anoAtual;
+}
+
+function placasFiltradas() {
+  const texto = normalizarTexto(buscaPlaca?.value);
+  const curso = filtroCurso?.value || "";
+  const ano = filtroAno?.value || "";
+
+  return placas.filter((placa) => {
+    const cursoDaPlaca = placa.curso || placa.nomeTurma || "";
+    const turmaDaPlaca = placa.nomeTurma || "";
+    const anoDaPlaca = placa.anoSemestre || "";
+
+    const correspondeTexto = !texto || normalizarTexto(`${cursoDaPlaca} ${turmaDaPlaca} ${anoDaPlaca}`).includes(texto);
+    const correspondeCurso = !curso || normalizarTexto(cursoDaPlaca) === normalizarTexto(curso);
+    const correspondeAno = !ano || anoDaPlaca === ano;
+
+    return correspondeTexto && correspondeCurso && correspondeAno;
+  });
 }
 
 function criarListaRecolhivel(titulo, textoNomes) {
@@ -81,14 +139,23 @@ function criarListaRecolhivel(titulo, textoNomes) {
 
 function renderizarMural() {
   mural.innerHTML = "";
+  atualizarOpcoesFiltros();
+
+  const placasVisiveis = placasFiltradas();
 
   if (placas.length === 0) {
     mural.innerHTML = `<div class="placa-card"><div class="placa-body"><p>Nenhuma placa adicionada ainda. Use o link acima para cadastrar uma nova placa.</p></div></div>`;
-    atualizarPlacasCount();
+    atualizarPlacasCount(0);
     return;
   }
 
-  placas.forEach((placa) => {
+  if (placasVisiveis.length === 0) {
+    mural.innerHTML = `<div class="placa-card"><div class="placa-body"><p>Nenhuma placa corresponde aos filtros selecionados.</p></div></div>`;
+    atualizarPlacasCount(0);
+    return;
+  }
+
+  placasVisiveis.forEach((placa) => {
     const card = document.createElement("article");
     card.className = "placa-card";
 
@@ -117,6 +184,9 @@ function renderizarMural() {
 
     const ano = document.createElement("p");
     ano.textContent = `Ano/Semestre: ${placa.anoSemestre}`;
+
+    const cursoP = document.createElement("p");
+    cursoP.textContent = `Curso: ${placa.curso || placa.nomeTurma || "Não informado"}`;
 
     const presidenteP = document.createElement("p");
     presidenteP.textContent = `Presidente: ${placa.presidente || "Não informado"}`;
@@ -178,6 +248,7 @@ function renderizarMural() {
 
     body.appendChild(titulo);
     body.appendChild(ano);
+    body.appendChild(cursoP);
     body.appendChild(presidenteP);
     body.appendChild(reitorP);
     body.appendChild(diretorP);
@@ -195,7 +266,7 @@ function renderizarMural() {
     mural.appendChild(card);
   });
 
-  atualizarPlacasCount();
+  atualizarPlacasCount(placasVisiveis.length);
 }
 
 function editarPlaca(id) {
@@ -231,6 +302,19 @@ function carregarPlacas() {
       renderizarMural();
     }
   );
+}
+
+if (filtrosPlacas) {
+  filtrosPlacas.addEventListener("submit", (event) => event.preventDefault());
+  buscaPlaca?.addEventListener("input", renderizarMural);
+  filtroCurso?.addEventListener("change", renderizarMural);
+  filtroAno?.addEventListener("change", renderizarMural);
+  limparFiltros?.addEventListener("click", () => {
+    if (buscaPlaca) buscaPlaca.value = "";
+    if (filtroCurso) filtroCurso.value = "";
+    if (filtroAno) filtroAno.value = "";
+    renderizarMural();
+  });
 }
 
 onAuthStateChanged(auth, (user) => {
